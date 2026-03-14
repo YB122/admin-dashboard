@@ -1,12 +1,16 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import styles from "./BlankLayout.module.css";
-import { Link, NavLink, Outlet } from "react-router-dom";
+import { Link, Navigate, NavLink, Outlet } from "react-router-dom";
 import ToggleMode from "../ToggleMode/ToggleMode.jsx";
 import { initFlowbite } from "flowbite";
+import { User } from "./../../contexts/UserContext.jsx";
 export default function BlankLayout() {
-  useEffect(() => {
-    initFlowbite();
-  }, []);
+  const { setUserData, userData } = useContext(User);
+  function signout() {
+    localStorage.removeItem("dbToken");
+    // localStorage.removeItem("userData");
+    <Navigate to="/login" />;
+  }
   return (
     <>
       <nav className="fixed top-0 z-50 w-full bg-neutral-primary-soft border-b border-default">
@@ -71,45 +75,21 @@ export default function BlankLayout() {
                     role="none"
                   >
                     <p className="text-sm font-medium text-heading" role="none">
-                      Neil Sims
+                      {/* {userData.name} */}
+                      youssef
                     </p>
                     <p className="text-sm text-body truncate" role="none">
-                      neil.sims@flowbite.com
+                      {/* {userData.email} */}
+                      youssef
                     </p>
                   </div>
                   <ul className="p-2 text-sm text-body font-medium" role="none">
                     <li>
                       <Link
                         to="#"
-                        className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
+                        className="inline-flex items-center w-full text-red-400 p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
                         role="menuitem"
-                      >
-                        Dashboard
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
-                        role="menuitem"
-                      >
-                        Settings
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
-                        role="menuitem"
-                      >
-                        Earnings
-                      </Link>
-                    </li>
-                    <li>
-                      <Link
-                        to="#"
-                        className="inline-flex items-center w-full p-2 hover:bg-neutral-tertiary-medium hover:text-heading rounded"
-                        role="menuitem"
+                        onClick={signout}
                       >
                         Sign out
                       </Link>
