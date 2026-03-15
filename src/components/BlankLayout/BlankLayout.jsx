@@ -1,15 +1,19 @@
 import React, { useContext, useEffect } from "react";
 import styles from "./BlankLayout.module.css";
-import { Link, Navigate, NavLink, Outlet } from "react-router-dom";
+import { Link, Navigate, NavLink, Outlet, useNavigate } from "react-router-dom";
 import ToggleMode from "../ToggleMode/ToggleMode.jsx";
 import { initFlowbite } from "flowbite";
 import { User } from "./../../contexts/UserContext.jsx";
 export default function BlankLayout() {
+  useEffect(() => {
+    initFlowbite();
+  }, []);
+  const navigate = useNavigate();
   const { setUserData, userData } = useContext(User);
   function signout() {
     localStorage.removeItem("dbToken");
-    // localStorage.removeItem("userData");
-    <Navigate to="/login" />;
+    localStorage.removeItem("userData");
+    navigate("/login");
   }
   return (
     <>
@@ -57,6 +61,9 @@ export default function BlankLayout() {
                     className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
                     aria-expanded="false"
                     data-dropdown-toggle="dropdown-user"
+                    onClick={() => {
+                      console.log("heelo");
+                    }}
                   >
                     <span className="sr-only">Open user menu</span>
                     <img
@@ -317,7 +324,7 @@ export default function BlankLayout() {
           </ul>
         </div>
       </aside>
-      <div className="p-4 sm:ml-64 mt-14">
+      <div className="p-4 sm:ml-64 mt-14 dark:bg-dark-strong min-h-screen">
         <Outlet></Outlet>
       </div>
     </>
