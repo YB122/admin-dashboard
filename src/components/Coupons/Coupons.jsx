@@ -5,18 +5,15 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { initFlowbite } from "flowbite";
-// let schema = z.object({
-//   name: z.string().min(3, "Minumun character 3").max(30, "max character 30"),
-//   image: z.any().optional(),
-// });
+
 let schema = z.object({
   code: z.string().min(3, "Minumun character 3").max(30, "max character 30"),
   expires: z.string(),
   discount: z.string().min(0).max(3),
 });
 export default function Coupons() {
-  // don't forget change the data of calender
   const [couponsData, setCouponsData] = useState([]);
+  const [currentCoupon, setCurrentCoupon] = useState({});
   const [dateNow, setDateNow] = useState("");
   const [isEdit, setIsEdit] = useState(false);
   useEffect(() => {
@@ -72,8 +69,6 @@ export default function Coupons() {
         console.log("=========================");
 
         console.log(res, "line 79");
-        console.log("=========================");
-        // change when server come back
         setCouponsData(res.data.coupons);
         console.log(couponsData);
       })
@@ -81,33 +76,7 @@ export default function Coupons() {
         console.log(err);
       });
   }
-  function submitCoupons(data) {
-    console.log(data);
-    //     const input = "05/01/2025";
-    const [month, day, year] = data.expires.split("/");
-    const date = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 0));
-    const iso = date.toISOString();
-    data.expires = iso;
-    console.log(data.expires);
 
-    // "2025-05-01T23:59:59.000Z"
-    axios
-      .post("https://nti-ecommerce.vercel.app/api/v1/Coupons", data, {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        getAllCoupons();
-      })
-      .catch((err) =>
-        console.error("Error:", err.response?.data || err.message),
-      )
-      .finally(() => {
-        closeModal();
-      });
-  }
   function deleteCoupon(id) {
     console.log(id);
     axios
@@ -125,22 +94,58 @@ export default function Coupons() {
         console.error("Message:", err.response?.data?.message || err.message);
       });
   }
-  function editCoupon(el) {
-    console.log(el);
+  
+    function editCoupon(el) {
     openModal(el);
-    axios
-      .put(`https://nti-ecommerce.vercel.app/api/v1/Coupons/${el._id}`, {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        getAllCoupons();
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    setCurrentCoupon(el);
+  }
+
+  function submitCoupons(data) {
+    const [month, day, year] = data.expires.split("/");
+    const date = new Date(Date.UTC(year, month - 1, day, 23, 59, 59, 0));
+    const iso = date.toISOString();
+    data.expires = iso;
+    if (isEdit == true) {
+      axios
+        .put(
+          `https://nti-ecommerce.vercel.app/api/v1/Coupons/${currentCoupon._id}`,
+          data,
+          {
+            headers: {
+              token: localStorage.getItem("dbToken"),
+            },
+          },
+        )
+        .then((res) => {
+          console.log(res, "line 93");
+          getAllCoupons();
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => {
+          setIsEdit(false);
+          closeModal();
+        });
+    } else {
+      axios
+        .post("https://nti-ecommerce.vercel.app/api/v1/Coupons", data, {
+          headers: {
+            token: localStorage.getItem("dbToken"),
+          },
+        })
+        .then((res) => {
+          console.log(res);
+          getAllCoupons();
+        })
+        .catch((err) =>
+          console.error("Error:", err.response?.data || err.message),
+        )
+        .finally(() => {
+          closeModal();
+          setIsEdit(false);
+        });
+    }
   }
   return (
     <>
