@@ -15,7 +15,7 @@ let schema = z.object({
   discount: z.string().min(0).max(3),
 });
 export default function Coupons() {
-  // don't forget change the data
+  // don't forget change the data of calender
   const [couponsData, setCouponsData] = useState([]);
   const [dateNow, setDateNow] = useState("");
   const [isEdit, setIsEdit] = useState(false);
