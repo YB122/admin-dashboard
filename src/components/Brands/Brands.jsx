@@ -43,7 +43,7 @@ export default function Brands() {
   function closeModal() {
     setIsModalOpen(false);
   }
-
+  // don't forget change the data
   function getAllBrands() {
     axios
       .get("https://nti-ecommerce.vercel.app/api/v1/brands", {
@@ -52,7 +52,9 @@ export default function Brands() {
         },
       })
       .then((res) => {
-        setBrands(res.data.data || res.data.brands || res.data.categories || []);
+        setBrands(
+          res.data.data || res.data.brands || res.data.categories || [],
+        );
       })
       .catch((err) => {
         console.error("Error fetching brands:", err);
@@ -60,10 +62,10 @@ export default function Brands() {
   }
 
   function submitBrands(data) {
-    const url = isEdit 
+    const url = isEdit
       ? `https://nti-ecommerce.vercel.app/api/v1/brands/${currentBrandId}`
       : "https://nti-ecommerce.vercel.app/api/v1/brands";
-    
+
     const method = isEdit ? "put" : "post";
 
     axios[method](url, data, {
@@ -76,7 +78,10 @@ export default function Brands() {
         closeModal();
       })
       .catch((err) => {
-        console.error("Error submitting brand:", err.response?.data || err.message);
+        console.error(
+          "Error submitting brand:",
+          err.response?.data || err.message,
+        );
       });
   }
 
