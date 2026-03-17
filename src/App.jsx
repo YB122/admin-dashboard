@@ -14,13 +14,30 @@ import Products from "./components/Products/Products.jsx";
 import Coupons from "./components/Coupons/Coupons.jsx";
 import Orders from "./components/Orders/Orders.jsx";
 import NotFound from "./components/NotFound/NotFound.jsx";
+import UserProvider from "./contexts/UserContext";
+import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute.jsx";
+import GuestRoute from "./components/GuestRoute/GuestRoute.jsx";
 let routes = createBrowserRouter([
   {
     path: "/",
     element: <AuthLayout />,
     children: [
-      { path: "/register", element: <Register /> },
-      { path: "/login", element: <Login /> },
+      {
+        path: "/register",
+        element: (
+          <GuestRoute>
+            <Register />
+          </GuestRoute>
+        ),
+      },
+      {
+        path: "/login",
+        element: (
+          <GuestRoute>
+            <Login />
+          </GuestRoute>
+        ),
+      },
       { path: "*", element: <NotFound /> },
     ],
   },
@@ -30,27 +47,51 @@ let routes = createBrowserRouter([
     children: [
       {
         path: "/categories",
-        element: <Categories />,
+        element: (
+          <ProtectedRoute>
+            <Categories />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/subcategories",
-        element: <SubCategories />,
+        element: (
+          <ProtectedRoute>
+            <SubCategories />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/brands",
-        element: <Brands />,
+        element: (
+          <ProtectedRoute>
+            <Brands />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/products",
-        element: <Products />,
+        element: (
+          <ProtectedRoute>
+            <Products />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/coupons",
-        element: <Coupons />,
+        element: (
+          <ProtectedRoute>
+            <Coupons />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/orders",
-        element: <Orders />,
+        element: (
+          <ProtectedRoute>
+            <Orders />
+          </ProtectedRoute>
+        ),
       },
       { path: "*", element: <NotFound /> },
     ],
@@ -59,7 +100,9 @@ let routes = createBrowserRouter([
 function App() {
   return (
     <>
-      <RouterProvider router={routes}></RouterProvider>
+      <UserProvider>
+        <RouterProvider router={routes}></RouterProvider>
+      </UserProvider>
     </>
   );
 }

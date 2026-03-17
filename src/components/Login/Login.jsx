@@ -36,6 +36,8 @@ export default function Login() {
       .then((res) => {
         console.log(res);
         localStorage.setItem("dbToken", res.data.token);
+        // localStorage.setItem("userData", res.data);
+
         navigate("/categories");
       })
       .catch((err) => {
