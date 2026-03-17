@@ -258,7 +258,7 @@ export default function Products() {
             </tr>
           </thead>
           <tbody>
-            {productsData.map((el) => {
+            {productsData?.map((el) => {
               return (
                 <tr
                   key={el._id}
