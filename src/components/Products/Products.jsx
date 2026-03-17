@@ -44,12 +44,69 @@ const arr = [{
   brand :"asdasd"
 }]
 export default function Products() {
-  const [ productsData, setProductsData ] = useState([]);
+  const [productsData, setProductsData] = useState([]);
+  let [currentProduct, setCurrentProduct] = useState({});
   const [isEdit, setIsEdit] = useState(false);
+
+  let [categortData, setCategoryData] = useState([]);
+  let [subCategoryData, setSubCategoryData] = useState([]);
+  let [brandData, setBrandData] = useState([]);
   useEffect(() => {
     getAllProducts();
+    getAllCategories();
+    getAllBrands();
+    getAllSubCategories();
   }, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+
+  function getAllCategories() {
+    axios
+      .get("https://nti-ecommerce.vercel.app/api/v1/categories", {
+        headers: {
+          token: localStorage.getItem("dbToken"),
+        },
+      })
+      .then((res) => {
+        console.log(res);
+        setCategoryData(res.data.categories);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+    function getAllBrands() {
+    axios
+      .get("https://nti-ecommerce.vercel.app/api/v1/brands", {
+        headers: {
+          token: localStorage.getItem("dbToken"),
+        },
+      })
+      .then((res) => {
+        setBrandData(res.data.brands);
+      })
+      .catch((err) => {
+        console.error("Error fetching brands:", err);
+      });
+  }
+
+    function getAllSubCategories() {
+    axios
+      .get("https://nti-ecommerce.vercel.app/api/v1/subCategories", {
+        headers: {
+          token: localStorage.getItem("dbToken"),
+        },
+      })
+      .then((res) => {
+        // console.log(res);
+        setSubCategoryData(res.data.categories);
+      })
+      .catch((err) => {
+        // console.log(err);
+      });
+  }
+
 
   let { register, handleSubmit, formState, setValue } = useForm({
     defaultValues: {
@@ -71,6 +128,7 @@ export default function Products() {
     if (product) {
       setIsEdit(true);
       setValue("name", product.name);
+   
     } else setIsEdit(false);
   }
 
@@ -86,8 +144,9 @@ export default function Products() {
         },
       })
       .then((res) => {
-        console.log(res);
-        setProductsData(res.data.products);
+        // console.log(res.data.Products,"lin");
+
+        setProductsData(res.data.Products);
       })
       .catch((err) => {
         console.log(err);
@@ -144,9 +203,9 @@ export default function Products() {
     console.log("======================");
 
     if (isEdit) 
-    {openModal(el);
+    {
     axios
-      .put(`https://nti-ecommerce.vercel.app/api/v1/products/${el._id}`, {
+      .put(`https://nti-ecommerce.vercel.app/api/v1/products/${currentProduct._id}`, {
         headers: {
           token: localStorage.getItem("dbToken"),
         },
@@ -197,10 +256,11 @@ export default function Products() {
       });
     console.log("mndavhjasdvhuvsahuvsdhauvhuadsvhudsav");
   }
-  // function editCategory(el) {
-  //   console.log(el);
+  function editProduct(el) {
+    openModal(el);
+       setCurrentProduct(el);
     
-  // }
+  }
   return (
     <>
       <div className="flex justify-end my-4">
@@ -269,7 +329,7 @@ export default function Products() {
                     scope="row"
                     className="px-6 py-5 text-xl font-bold text-heading whitespace-nowrap rounded-s-xl"
                   >
-                    {el.Title}
+                    {el.title}
                   </th>
 
                   {/* Photo Column - Large & Rounded */}
@@ -293,17 +353,29 @@ export default function Products() {
                   </td>
                   <td className="px-6 py-5">
                     <div className="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-2xl  shadow-sm">
-                      {el.category}
+                      {
+                        categortData.find((x) => {
+                          x._id = el.category;
+                        })?.name
+                      }
                     </div>
                   </td>
                   <td className="px-6 py-5">
                     <div className="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-2xl  shadow-sm">
-                      {el.subCategory}
+                      {
+                        subCategoryData.find((x) => {
+                          x._id = el.subCategory;
+                        })?.name
+                      }
                     </div>
                   </td>
                   <td className="px-6 py-5">
                     <div className="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-2xl  shadow-sm">
-                      {el.brand}
+                       {
+                        brandData.find((x) => {
+                          x._id = el.brand;
+                        })?.name
+                      }
                     </div>
                   </td>
                   <td className="px-6 py-5">
@@ -368,7 +440,7 @@ export default function Products() {
             <div className="relative bg-neutral-primary-soft border border-default rounded-base shadow-sm p-4 md:p-6">
               <div className="flex items-center justify-between border-b border-default pb-4 md:pb-5">
                 <h3 className="text-lg font-medium text-heading">
-                  {isEdit ? "Edit Category" : "Add New Category"}
+                  {isEdit ? "Edit prodcut" : "Add New product"}
                 </h3>
                 <button
                   type="button"
