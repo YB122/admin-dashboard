@@ -5,19 +5,62 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { User } from "../../contexts/UserContext.jsx";
+import Pagination from "../Pagination/Pagination";
+import { categoriesFetch } from "../../api/categories.Fetch.jsx";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 let schema = z.object({
   name: z.string().min(3, "Minumun character 3").max(30, "max character 30"),
   image: z.any().optional(),
 });
 export default function Categories() {
-  const [ categoriesData, setCategoriesData ] = useState([]);
-  const [isEdit, setIsEdit] = useState(false);
+  let {
+    categoriesPageData,
+    categoriesAllData,
+    setCategoriesPageData,
+    setCategoriesAllData,
+    categoriesPage,
+    setCategoriesPage,
+  } = useContext(User);
+
   useEffect(() => {
-    getAllCategories();
-  }, []);
+    categoriesFetch(setCategoriesAllData);
+  }, [setCategoriesAllData]);
+
+  useEffect(() => {
+    if (categoriesAllData.length > 0 && categoriesPageData.length === 0) {
+      setCategoriesPageData(categoriesAllData[0]);
+    }
+  }, [categoriesAllData, setCategoriesPageData, categoriesPageData.length]);
+
+  // Update page data when categoriesAllData changes and we have a current page
+  useEffect(() => {
+    if (categoriesAllData.length > 0 && categoriesPage > 0) {
+      const currentPageIndex = categoriesPage - 1;
+      if (
+        currentPageIndex < categoriesAllData.length &&
+        categoriesAllData[currentPageIndex]
+      ) {
+        setCategoriesPageData(categoriesAllData[currentPageIndex]);
+      } else if (categoriesAllData.length > 0) {
+        // If current page no longer exists, go to first page
+        setCategoriesPage(1);
+        setCategoriesPageData(categoriesAllData[0]);
+      }
+    }
+  }, [
+    categoriesAllData,
+    categoriesPage,
+    setCategoriesPageData,
+    setCategoriesPage,
+  ]);
+
+  const [isEdit, setIsEdit] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState({});
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [categoryToDelete, setCategoryToDelete] = useState(null);
   let { register, handleSubmit, formState, setValue } = useForm({
     defaultValues: {
       name: "",
@@ -39,21 +82,6 @@ export default function Categories() {
     setIsModalOpen(false);
   }
 
-  function getAllCategories() {
-    axios
-      .get("https://nti-ecommerce.vercel.app/api/v1/categories", {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        setCategoriesData(res.data.categories);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
   function submitCategories(data) {
     console.log(currentCategory, "line 57");
 
@@ -92,10 +120,29 @@ export default function Categories() {
         )
         .then((res) => {
           console.log(res, "line 93");
-          getAllCategories();
+          categoriesFetch(setCategoriesAllData);
+          setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
+          toast.success("Category updated successfully!");
         })
         .catch((err) => {
           console.log(err);
+
+          // Handle different error types
+          if (!err.response) {
+            // Network error - no internet connection
+            toast.error(
+              "Network error! Please check your internet connection.",
+            );
+          } else if (err.response?.status >= 500) {
+            // Server error (500+)
+            toast.error("Server error! Please try again later.");
+          } else {
+            // Other errors (400, 401, 403, 404, etc.)
+            toast.error(
+              "Error: " +
+                (err.response?.data?.message || "Something went wrong"),
+            );
+          }
         })
         .finally(() => {
           setIsEdit(false);
@@ -110,34 +157,92 @@ export default function Categories() {
         })
         .then((res) => {
           console.log(res);
-          getAllCategories();
+          categoriesFetch(setCategoriesAllData);
+          setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
+          toast.success("Category added successfully!");
         })
-        .catch((err) =>
-          console.error("Error:", err.response?.data || err.message),
-        )
+        .catch((err) => {
+          console.error("Error:", err.response?.data || err.message);
+
+          // Handle different error types
+          if (!err.response) {
+            // Network error - no internet connection
+            toast.error(
+              "Network error! Please check your internet connection.",
+            );
+          } else if (err.response?.status >= 500) {
+            // Server error (500+)
+            toast.error("Server error! Please try again later.");
+          } else {
+            // Other errors (400, 401, 403, 404, etc.)
+            toast.error(
+              "Error: " +
+                (err.response?.data?.message || "Something went wrong"),
+            );
+          }
+        })
         .finally(() => {
           closeModal();
           setIsEdit(false);
         });
     }
+    categoriesFetch(setCategoriesAllData);
+    setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
   }
   function deleteCategory(id) {
-    console.log(id);
-    axios
-      .delete(`https://nti-ecommerce.vercel.app/api/v1/categories/${id}`, {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        getAllCategories();
-      })
-      .catch((err) => {
-        console.error("Status:", err.response?.status); // 401 = Unauthorized, 404 = Not Found
-        console.error("Message:", err.response?.data?.message || err.message);
-      });
-    console.log("mndavhjasdvhuvsahuvsdhauvhuadsvhudsav");
+    // Show SweetAlert2 confirmation dialog
+    Swal.fire({
+      title: "Delete Category?",
+      text: "Are you sure you want to delete this category? This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        console.log(id);
+        axios
+          .delete(`https://nti-ecommerce.vercel.app/api/v1/categories/${id}`, {
+            headers: {
+              token: localStorage.getItem("dbToken"),
+            },
+          })
+          .then((res) => {
+            console.log(res);
+            // Just fetch updated data - useEffect will handle page data updates
+            categoriesFetch(setCategoriesAllData);
+            toast.success("Category deleted successfully!");
+          })
+          .catch((err) => {
+            console.error("Status:", err.response?.status); // 401 = Unauthorized, 404 = Not Found
+            console.error(
+              "Message:",
+              err.response?.data?.message || err.message,
+            );
+            // Handle different error types
+            if (!err.response) {
+              // Network error - no internet connection
+              toast.error(
+                "Network error! Please check your internet connection.",
+              );
+            } else if (err.response?.status >= 500) {
+              // Server error (500+)
+              toast.error("Server error! Please try again later.");
+            } else {
+              // Other errors (400, 401, 403, 404, etc.)
+              toast.error(
+                "Error: " +
+                  (err.response?.data?.message || "Something went wrong"),
+              );
+            }
+          });
+      } else {
+        console.log("Category deletion cancelled by user");
+      }
+    });
   }
   function editCategory(el) {
     openModal(el);
@@ -177,7 +282,7 @@ export default function Categories() {
             </tr>
           </thead>
           <tbody>
-            {categoriesData.map((el) => {
+            {categoriesPageData.map((el) => {
               return (
                 <tr
                   key={el._id}
@@ -235,6 +340,10 @@ export default function Categories() {
             })}
           </tbody>
         </table>
+
+        <div className="container mx-auto flex justify-center mt-4">
+          <Pagination />
+        </div>
       </div>
 
       {isModalOpen && (
