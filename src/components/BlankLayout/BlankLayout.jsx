@@ -46,7 +46,7 @@ export default function BlankLayout() {
                   />
                 </svg>
               </button>
-              <Link to="/categories" className="flex ms-2 md:me-24">
+              <Link to="/" className="flex ms-2 md:me-24">
                 <span className="self-center text-lg font-semibold whitespace-nowrap dark:text-white">
                   Admin DashBoard
                 </span>
@@ -130,7 +130,7 @@ export default function BlankLayout() {
           <ul className="space-y-2 font-medium">
             <li>
               <NavLink
-                to="/categories"
+                to="/"
                 className="flex items-center px-2 py-1.5 text-body rounded-base hover:bg-neutral-tertiary hover:text-fg-brand group"
               >
                 <svg
