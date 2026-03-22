@@ -48,7 +48,7 @@ export default function Products() {
   let [currentProduct, setCurrentProduct] = useState({});
   const [isEdit, setIsEdit] = useState(false);
 
-  let [categortData, setCategoryData] = useState([]);
+  let [categoryData, setCategoryData] = useState([]);
   let [subCategoryData, setSubCategoryData] = useState([]);
   let [brandData, setBrandData] = useState([]);
   useEffect(() => {
@@ -354,27 +354,21 @@ export default function Products() {
                   <td className="px-6 py-5">
                     <div className="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-2xl  shadow-sm">
                       {
-                        categortData.find((x) => {
-                          x._id = el.category;
-                        })?.name
+                        categoryData.find((x) => x._id === el.category)?.name
                       }
                     </div>
                   </td>
                   <td className="px-6 py-5">
                     <div className="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-2xl  shadow-sm">
                       {
-                        subCategoryData.find((x) => {
-                          x._id = el.subCategory;
-                        })?.name
+                        subCategoryData.find((x) => x._id === el.subCategory)?.name
                       }
                     </div>
                   </td>
                   <td className="px-6 py-5">
                     <div className="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-2xl  shadow-sm">
                        {
-                        brandData.find((x) => {
-                          x._id = el.brand;
-                        })?.name
+                        brandData.find((x) => x._id === el.brand)?.name
                       }
                     </div>
                   </td>

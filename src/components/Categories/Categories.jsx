@@ -5,13 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { User } from "../../contexts/UserContext.jsx";
+import Pagination from "../Pagination/Pagination";
 
 let schema = z.object({
   name: z.string().min(3, "Minumun character 3").max(30, "max character 30"),
   image: z.any().optional(),
 });
 export default function Categories() {
-  const [ categoriesData, setCategoriesData ] = useState([]);
+  const [categoriesData, setCategoriesData] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
   useEffect(() => {
     getAllCategories();
@@ -234,6 +235,10 @@ export default function Categories() {
               );
             })}
           </tbody>
+
+          <div className="container mx-auto flex justify-center">
+            <Pagination categoriesData={categoriesData} />
+          </div>
         </table>
       </div>
 

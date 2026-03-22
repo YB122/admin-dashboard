@@ -10,7 +10,7 @@ export default function UserProvider({ children }) {
   const [userData, setUserData] = useState(
     JSON.parse(localStorage.getItem("userData")) || null,
   );
-  const [categoriesData, setCategoriesData] = useState([]);
+
   useEffect(() => {
     userToken
       ? localStorage.setItem("dbToken", userToken)
@@ -21,24 +21,7 @@ export default function UserProvider({ children }) {
       ? localStorage.setItem("userData", JSON.stringify(userData))
       : localStorage.removeItem("userData");
   }, [userData]);
-  useEffect(() => {
-    getAllCategories();
-  }, []);
-  function getAllCategories() {
-    axios
-      .get("https://nti-ecommerce.vercel.app/api/v1/categories", {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        setCategoriesData(res.data.categories);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  }
+
   return (
     <User.Provider
       value={{
@@ -46,8 +29,6 @@ export default function UserProvider({ children }) {
         setUserToken,
         setUserData,
         userData,
-        categoriesData,
-        setCategoriesData,
       }}
     >
       {children}

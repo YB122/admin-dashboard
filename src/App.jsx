@@ -46,7 +46,8 @@ let routes = createBrowserRouter([
     element: <BlankLayout />,
     children: [
       {
-        path: "/categories",
+        // path: "/",
+        index: true,
         element: (
           <ProtectedRoute>
             <Categories />

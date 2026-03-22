@@ -38,7 +38,7 @@ export default function Login() {
         localStorage.setItem("dbToken", res.data.token);
         // localStorage.setItem("userData", res.data);
 
-        navigate("/categories");
+        navigate("/");
       })
       .catch((err) => {
         console.log("Server Error Data:", err.response?.data);
