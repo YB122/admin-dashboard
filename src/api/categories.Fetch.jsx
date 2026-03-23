@@ -13,7 +13,6 @@ export async function categoriesFetch(setCategoriesAllData) {
         },
       })
       .then((res) => {
-
         if (res.data.categories.length <= 4 && res.data.categories.length > 0) {
           flag = false;
           allCategories.push(res.data.categories);
@@ -25,7 +24,6 @@ export async function categoriesFetch(setCategoriesAllData) {
         }
       })
       .catch((err) => {
-      
         flag = false;
       });
   }
