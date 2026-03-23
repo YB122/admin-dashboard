@@ -18,35 +18,6 @@ const schema = z.object({
   images: z.any().optional(),
 });
 
-const arr = [
-  {
-    title: "asd",
-    price: 10,
-    description: "asdasd",
-    stock: "asdasd",
-    category: "asdasdasd",
-    subCategory: "asdasd",
-    brand: "asdasd",
-  },
-  {
-    title: "asd",
-    price: 10,
-    description: "asdasd",
-    stock: "asdasd",
-    category: "asdasdasd",
-    subCategory: "asdasd",
-    brand: "asdasd",
-  },
-  {
-    title: "asd",
-    price: 10,
-    description: "asdasd",
-    stock: "asdasd",
-    category: "asdasdasd",
-    subCategory: "asdasd",
-    brand: "asdasd",
-  },
-];
 export default function Products() {
   const [productsData, setProductsData] = useState([]);
   let [currentProduct, setCurrentProduct] = useState({});
@@ -377,7 +348,7 @@ export default function Products() {
             <div className="relative bg-neutral-primary-soft border border-default rounded-base shadow-sm p-4 md:p-6">
               <div className="flex items-center justify-between border-b border-default pb-4 md:pb-5">
                 <h3 className="text-lg font-medium text-heading">
-                  {isEdit ? "Edit prodcut" : "Add New product"}
+                  {isEdit ? "Edit product" : "Add New product"}
                 </h3>
                 <button
                   type="button"

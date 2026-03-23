@@ -7,7 +7,7 @@ import z from "zod";
 import { initFlowbite } from "flowbite";
 
 let schema = z.object({
-  code: z.string().min(3, "Minumun character 3").max(30, "max character 30"),
+  code: z.string().min(3, "min character 3").max(30, "max character 30"),
   expires: z.string(),
   discount: z.string().min(0).max(3),
 });
@@ -286,7 +286,7 @@ export default function Coupons() {
                   )}
                 </div>
                 <div className="relative max-w-sm">
-                  <div className="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                  <div className="absolute inset-y-0  flex items-center ps-3 pointer-events-none">
                     <svg
                       className="w-4 h-4 text-body"
                       aria-hidden="true"
@@ -311,7 +311,7 @@ export default function Coupons() {
                     datepicker-min-date={dateNow}
                     // datepicker-max-date="05/05/2025"
                     type="text"
-                    className="block w-full ps-9 pe-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand px-3 py-2.5 shadow-xs placeholder:text-body"
+                    className="block w-full ps-9 pe-3 py-2.5 bg-neutral-secondary-medium border border-default-medium text-heading text-sm rounded-base focus:ring-brand focus:border-brand px-3  shadow-xs placeholder:text-body"
                     placeholder="Select date"
                     {...register("expires")}
                   />

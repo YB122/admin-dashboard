@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import Swal from "sweetalert2";
 
 let schema = z.object({
-  name: z.string().min(3, "Minumun character 3").max(30, "max character 30"),
+  name: z.string().min(3, "min character 3").max(30, "max character 30"),
   image: z.any().optional(),
 });
 export default function Categories() {

@@ -7,7 +7,7 @@ import z from "zod";
 import { User } from "../../contexts/UserContext.jsx";
 
 let schema = z.object({
-  name: z.string().min(3, "Minumun character 3").max(30, "max character 30"),
+  name: z.string().min(3, "min character 3").max(30, "max character 30"),
   category: z.string(),
 });
 export default function SubCategories() {
