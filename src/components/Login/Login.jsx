@@ -35,7 +35,6 @@ export default function Login() {
     axios
       .post("https://nti-ecommerce.vercel.app/api/v1/auth/signIn", data)
       .then((res) => {
-        console.log(res);
         localStorage.setItem("dbToken", res.data.token);
         // localStorage.setItem("userData", res.data);
 
@@ -43,9 +42,7 @@ export default function Login() {
 
         navigate("/");
       })
-      .catch((err) => {
-        console.log("Server Error Data:", err.response?.data);
-      })
+      .catch((err) => {})
       .finally(() => {
         setIsLoading(false);
       });

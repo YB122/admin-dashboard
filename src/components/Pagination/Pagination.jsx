@@ -16,8 +16,6 @@ export default function Pagination() {
     categoriesFetch(setCategoriesAllData);
   }, [setCategoriesAllData]);
 
-  console.log(categoriesAllData.length, "line 8");
-
   function changePage(numberPage) {
     categoriesFetch(setCategoriesAllData);
     setCategoriesPageData(categoriesAllData[numberPage - 1]);

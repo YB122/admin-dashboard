@@ -83,30 +83,13 @@ export default function Categories() {
   }
 
   function submitCategories(data) {
-    console.log(currentCategory, "line 57");
-
-    console.log(data);
     let formData = new FormData();
     formData.append("name", data.name);
-    console.log(formData, "line 35");
 
     if (data.image && data.image[0]) {
       formData.append("image", data.image[0]);
     }
-    // ✅ CORRECT way to debug FormData
-    console.log("=== FormData Contents ===");
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`${key}:`, {
-          name: value.name,
-          size: value.size,
-          type: value.type,
-        });
-      } else {
-        console.log(`${key}:`, value);
-      }
-    }
-    console.log("======================");
+
     if (isEdit == true) {
       axios
         .put(
@@ -119,14 +102,11 @@ export default function Categories() {
           },
         )
         .then((res) => {
-          console.log(res, "line 93");
           categoriesFetch(setCategoriesAllData);
           setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
           toast.success("Category updated successfully!");
         })
         .catch((err) => {
-          console.log(err);
-
           // Handle different error types
           if (!err.response) {
             // Network error - no internet connection
@@ -156,14 +136,11 @@ export default function Categories() {
           },
         })
         .then((res) => {
-          console.log(res);
           categoriesFetch(setCategoriesAllData);
           setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
           toast.success("Category added successfully!");
         })
         .catch((err) => {
-          console.error("Error:", err.response?.data || err.message);
-
           // Handle different error types
           if (!err.response) {
             // Network error - no internet connection
@@ -203,7 +180,6 @@ export default function Categories() {
       reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log(id);
         axios
           .delete(`https://nti-ecommerce.vercel.app/api/v1/categories/${id}`, {
             headers: {
@@ -211,17 +187,11 @@ export default function Categories() {
             },
           })
           .then((res) => {
-            console.log(res);
             // Just fetch updated data - useEffect will handle page data updates
             categoriesFetch(setCategoriesAllData);
             toast.success("Category deleted successfully!");
           })
           .catch((err) => {
-            console.error("Status:", err.response?.status); // 401 = Unauthorized, 404 = Not Found
-            console.error(
-              "Message:",
-              err.response?.data?.message || err.message,
-            );
             // Handle different error types
             if (!err.response) {
               // Network error - no internet connection
@@ -240,7 +210,6 @@ export default function Categories() {
             }
           });
       } else {
-        console.log("Category deletion cancelled by user");
       }
     });
   }

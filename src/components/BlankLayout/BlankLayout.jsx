@@ -61,9 +61,6 @@ export default function BlankLayout() {
                     className="flex text-sm bg-gray-800 rounded-full focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
                     aria-expanded="false"
                     data-dropdown-toggle="dropdown-user"
-                    onClick={() => {
-                      console.log("heelo");
-                    }}
                   >
                     <span className="sr-only">Open user menu</span>
                     <img

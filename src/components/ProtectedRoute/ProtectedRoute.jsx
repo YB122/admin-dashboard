@@ -6,11 +6,8 @@ export default function ProtectedRoute(props) {
   const navigate = useNavigate();
   const { userToken, setUserToken } = useContext(User);
   if (userToken) {
-    console.log("enter");
-
     return props.children;
   } else {
-    console.log("out");
     navigate("/login");
     // return <Navigate to={"/login"}></Navigate>;
   }

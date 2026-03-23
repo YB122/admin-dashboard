@@ -19,17 +19,13 @@ export default function SubCategories() {
     resolver: zodResolver(schema),
   });
   const [currentSubCategory, setCurrentSubCategory] = useState({});
-  const [categoriesData, setCategoriesData ] = useState([]);
+  const [categoriesData, setCategoriesData] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
   useEffect(() => {
     getAllSubCategories();
     getAllCategories();
   }, []);
-
-  useEffect(() => {
-    console.log("categoriesData updated:", categoriesData);
-  }, [categoriesData]);
 
   function getAllCategories() {
     axios
@@ -41,9 +37,7 @@ export default function SubCategories() {
       .then((res) => {
         setCategoriesData(res.data.categories);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,13 +64,10 @@ export default function SubCategories() {
       .then((res) => {
         setSubCategories(res.data.categories);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }
 
   function deleteSubCategories(id) {
-
     axios
       .delete(`https://nti-ecommerce.vercel.app/api/v1/subCategories/${id}`, {
         headers: {
@@ -86,7 +77,7 @@ export default function SubCategories() {
       .then((res) => {
         getAllSubCategories();
       })
-      .catch((err) => {console.log(err);});
+      .catch((err) => {});
   }
   function editSubCategories(el) {
     openModal(el);
@@ -106,12 +97,9 @@ export default function SubCategories() {
           },
         )
         .then((res) => {
-          console.log(res, "line 93");
           getAllSubCategories();
         })
-        .catch((err) => {
-          console.log(err);
-        })
+        .catch((err) => {})
         .finally(() => {
           setIsEdit(false);
           closeModal();
@@ -124,12 +112,9 @@ export default function SubCategories() {
           },
         })
         .then((res) => {
-          console.log(res);
           getAllSubCategories();
         })
-        .catch((err) =>
-          console.error("Error:", err.response?.data || err.message),
-        )
+        .catch((err) => {})
         .finally(() => {
           closeModal();
           setIsEdit(false);
@@ -186,7 +171,8 @@ export default function SubCategories() {
                     <div className="flex items-center">
                       <span className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-neutral-secondary-medium text-brand font-bold text-sm border border-default shadow-sm transition-all hover:bg-neutral-secondary-strong">
                         <i className="fa-solid fa-layer-group text-brand-medium opacity-80"></i>
-                        {categoriesData.find((cat) => cat._id == el.category)?.name || "No Category"}
+                        {categoriesData.find((cat) => cat._id == el.category)
+                          ?.name || "No Category"}
                       </span>
                     </div>
                   </td>

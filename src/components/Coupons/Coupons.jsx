@@ -21,7 +21,6 @@ export default function Coupons() {
   }, []);
   useEffect(() => {
     getAllCoupons();
-    console.log(couponsData);
   }, []);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,19 +65,12 @@ export default function Coupons() {
         },
       })
       .then((res) => {
-        console.log("=========================");
-
-        console.log(res, "line 79");
         setCouponsData(res.data.coupons);
-        console.log(couponsData);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }
 
   function deleteCoupon(id) {
-    console.log(id);
     axios
       .delete(`https://nti-ecommerce.vercel.app/api/v1/Coupons/${id}`, {
         headers: {
@@ -86,16 +78,12 @@ export default function Coupons() {
         },
       })
       .then((res) => {
-        console.log(res);
         getAllCoupons();
       })
-      .catch((err) => {
-        console.error("Status:", err.response?.status); // 401 = Unauthorized, 404 = Not Found
-        console.error("Message:", err.response?.data?.message || err.message);
-      });
+      .catch((err) => {});
   }
-  
-    function editCoupon(el) {
+
+  function editCoupon(el) {
     openModal(el);
     setCurrentCoupon(el);
   }
@@ -117,11 +105,11 @@ export default function Coupons() {
           },
         )
         .then((res) => {
-          console.log(res, "line 93");
+         
           getAllCoupons();
         })
         .catch((err) => {
-          console.log(err);
+        
         })
         .finally(() => {
           setIsEdit(false);
@@ -135,11 +123,11 @@ export default function Coupons() {
           },
         })
         .then((res) => {
-          console.log(res);
+        
           getAllCoupons();
         })
         .catch((err) =>
-          console.error("Error:", err.response?.data || err.message),
+         
         )
         .finally(() => {
           closeModal();

@@ -18,31 +18,35 @@ const schema = z.object({
   images: z.any().optional(),
 });
 
-const arr = [{
-  title: "asd",
-  price: 10,
-  description :"asdasd",
-  stock :"asdasd",
-  category:"asdasdasd",
-  subCategory :"asdasd",
-  brand :"asdasd"
-},{
-  title: "asd",
-  price: 10,
-  description :"asdasd",
-  stock :"asdasd",
-  category:"asdasdasd",
-  subCategory :"asdasd",
-  brand :"asdasd"
-},{
-  title: "asd",
-  price: 10,
-  description :"asdasd",
-  stock :"asdasd",
-  category:"asdasdasd",
-  subCategory :"asdasd",
-  brand :"asdasd"
-}]
+const arr = [
+  {
+    title: "asd",
+    price: 10,
+    description: "asdasd",
+    stock: "asdasd",
+    category: "asdasdasd",
+    subCategory: "asdasd",
+    brand: "asdasd",
+  },
+  {
+    title: "asd",
+    price: 10,
+    description: "asdasd",
+    stock: "asdasd",
+    category: "asdasdasd",
+    subCategory: "asdasd",
+    brand: "asdasd",
+  },
+  {
+    title: "asd",
+    price: 10,
+    description: "asdasd",
+    stock: "asdasd",
+    category: "asdasdasd",
+    subCategory: "asdasd",
+    brand: "asdasd",
+  },
+];
 export default function Products() {
   const [productsData, setProductsData] = useState([]);
   let [currentProduct, setCurrentProduct] = useState({});
@@ -59,7 +63,6 @@ export default function Products() {
   }, []);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-
   function getAllCategories() {
     axios
       .get("https://nti-ecommerce.vercel.app/api/v1/categories", {
@@ -68,15 +71,12 @@ export default function Products() {
         },
       })
       .then((res) => {
-        console.log(res);
         setCategoryData(res.data.categories);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }
 
-    function getAllBrands() {
+  function getAllBrands() {
     axios
       .get("https://nti-ecommerce.vercel.app/api/v1/brands", {
         headers: {
@@ -86,12 +86,10 @@ export default function Products() {
       .then((res) => {
         setBrandData(res.data.brands);
       })
-      .catch((err) => {
-        console.error("Error fetching brands:", err);
-      });
+      .catch((err) => {});
   }
 
-    function getAllSubCategories() {
+  function getAllSubCategories() {
     axios
       .get("https://nti-ecommerce.vercel.app/api/v1/subCategories", {
         headers: {
@@ -99,14 +97,10 @@ export default function Products() {
         },
       })
       .then((res) => {
-        // console.log(res);
         setSubCategoryData(res.data.categories);
       })
-      .catch((err) => {
-        // console.log(err);
-      });
+      .catch((err) => {});
   }
-
 
   let { register, handleSubmit, formState, setValue } = useForm({
     defaultValues: {
@@ -118,7 +112,7 @@ export default function Products() {
       subCategory: "",
       brand: "",
       imageCover: "",
-      images :""
+      images: "",
     },
     resolver: zodResolver(schema),
   });
@@ -128,7 +122,6 @@ export default function Products() {
     if (product) {
       setIsEdit(true);
       setValue("name", product.name);
-   
     } else setIsEdit(false);
   }
 
@@ -144,16 +137,11 @@ export default function Products() {
         },
       })
       .then((res) => {
-        // console.log(res.data.Products,"lin");
-
         setProductsData(res.data.Products);
       })
-      .catch((err) => {
-        console.log(err);
-      });
+      .catch((err) => {});
   }
   function submitProducts(data) {
-    console.log(data);
     let formData = new FormData();
     formData.append("name", data.name);
     formData.append("title", data.title);
@@ -162,84 +150,49 @@ export default function Products() {
     formData.append("stock", data.stock);
     formData.append("category", data.category);
     formData.append("subCategory", data.subCategory);
-    
-   
-    
+
     if (data.imageCover && data.imageCover[0]) {
       formData.append("imageCover", data.imageCover[0]);
     }
-    // ✅ CORRECT way to debug FormData
-    console.log("=== FormData Contents ===");
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`${key}:`, {
-          name: value.name,
-          size: value.size,
-          type: value.type,
-        });
-      } else {
-        console.log(`${key}:`, value);
-      }
-    }
+
     if (data.image && data.image[0]) {
       formData.append("image", data.image[0]);
     }
-    // ✅ CORRECT way to debug FormData
-    console.log("=== FormData Contents ===");
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`${key}:`, {
-          name: value.name,
-          size: value.size,
-          type: value.type,
+
+    if (isEdit) {
+      axios
+        .put(
+          `https://nti-ecommerce.vercel.app/api/v1/products/${currentProduct._id}`,
+          {
+            headers: {
+              token: localStorage.getItem("dbToken"),
+            },
+          },
+        )
+        .then((res) => {
+          getAllProducts();
+        })
+        .catch((err) => {})
+        .finally(() => {
+          closeModal();
         });
-      } else {
-        console.log(`${key}:`, value);
-      }
+    } else {
+      axios
+        .post("https://nti-ecommerce.vercel.app/api/v1/products", formData, {
+          headers: {
+            token: localStorage.getItem("dbToken"),
+          },
+        })
+        .then((res) => {
+          getAllProducts();
+        })
+        .catch((err) => {})
+        .finally(() => {
+          closeModal();
+        });
     }
-
-    console.log(formData);
-    
-    console.log("======================");
-
-    if (isEdit) 
-    {
-    axios
-      .put(`https://nti-ecommerce.vercel.app/api/v1/products/${currentProduct._id}`, {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        getAllProducts();
-      })
-      .catch((err) => {
-        console.log(err);
-      }).finally(() =>{
-        closeModal();
-      });
-    }
-    else
-  {  axios
-      .post("https://nti-ecommerce.vercel.app/api/v1/products", formData, {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        getAllProducts();
-      })
-      .catch((err) =>
-        console.error("Error:", err.response?.data || err.message),
-      )
-      .finally(() => {
-        closeModal();
-      });}
   }
   function deleteProduct(id) {
-    console.log(id);
     axios
       .delete(`https://nti-ecommerce.vercel.app/api/v1/products/${id}`, {
         headers: {
@@ -247,19 +200,13 @@ export default function Products() {
         },
       })
       .then((res) => {
-        console.log(res);
         getAllProducts();
       })
-      .catch((err) => {
-        console.error("Status:", err.response?.status); // 401 = Unauthorized, 404 = Not Found
-        console.error("Message:", err.response?.data?.message || err.message);
-      });
-    console.log("mndavhjasdvhuvsahuvsdhauvhuadsvhudsav");
+      .catch((err) => {});
   }
   function editProduct(el) {
     openModal(el);
-       setCurrentProduct(el);
-    
+    setCurrentProduct(el);
   }
   return (
     <>
@@ -310,8 +257,7 @@ export default function Products() {
               <th scope="col" className="px-6 py-3 font-semibold">
                 description
               </th>
-              
-              
+
               <th scope="col" className="px-6 py-3 font-semibold text-right">
                 Actions
               </th>
@@ -353,23 +299,20 @@ export default function Products() {
                   </td>
                   <td className="px-6 py-5">
                     <div className="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-2xl  shadow-sm">
-                      {
-                        categoryData.find((x) => x._id === el.category)?.name
-                      }
+                      {categoryData.find((x) => x._id === el.category)?.name}
                     </div>
                   </td>
                   <td className="px-6 py-5">
                     <div className="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-2xl  shadow-sm">
                       {
-                        subCategoryData.find((x) => x._id === el.subCategory)?.name
+                        subCategoryData.find((x) => x._id === el.subCategory)
+                          ?.name
                       }
                     </div>
                   </td>
                   <td className="px-6 py-5">
                     <div className="w-24 h-24 md:w-32 md:h-32 overflow-hidden rounded-2xl  shadow-sm">
-                       {
-                        brandData.find((x) => x._id === el.brand)?.name
-                      }
+                      {brandData.find((x) => x._id === el.brand)?.name}
                     </div>
                   </td>
                   <td className="px-6 py-5">
@@ -473,7 +416,7 @@ export default function Products() {
                     htmlFor="title"
                     className="block mb-2.5 text-sm font-medium text-heading"
                   >
-                   product title
+                    product title
                   </label>
                   <input
                     type="text"
@@ -531,7 +474,7 @@ export default function Products() {
                     htmlFor="price"
                     className="block mb-2.5 text-sm font-medium text-heading"
                   >
-                   product price
+                    product price
                   </label>
                   <input
                     type="text"
@@ -551,7 +494,7 @@ export default function Products() {
                     htmlFor="description"
                     className="block mb-2.5 text-sm font-medium text-heading"
                   >
-                   product description
+                    product description
                   </label>
                   <input
                     type="text"
@@ -571,7 +514,7 @@ export default function Products() {
                     htmlFor="stock"
                     className="block mb-2.5 text-sm font-medium text-heading"
                   >
-                   product stock
+                    product stock
                   </label>
                   <input
                     type="text"
@@ -591,7 +534,7 @@ export default function Products() {
                     htmlFor="category"
                     className="block mb-2.5 text-sm font-medium text-heading"
                   >
-                   product category
+                    product category
                   </label>
                   <input
                     type="text"
@@ -611,7 +554,7 @@ export default function Products() {
                     htmlFor="subCategory"
                     className="block mb-2.5 text-sm font-medium text-heading"
                   >
-                   product subCategory
+                    product subCategory
                   </label>
                   <input
                     type="text"
@@ -631,7 +574,7 @@ export default function Products() {
                     htmlFor="brand"
                     className="block mb-2.5 text-sm font-medium text-heading"
                   >
-                   product brand
+                    product brand
                   </label>
                   <input
                     type="text"

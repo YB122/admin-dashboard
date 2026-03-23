@@ -55,7 +55,7 @@ export default function Brands() {
         setBrands(res.data.brands);
       })
       .catch((err) => {
-        console.error("Error fetching brands:", err);
+
       });
   }
 
@@ -70,7 +70,7 @@ export default function Brands() {
         getAllBrands();
       })
       .catch((err) => {
-        console.error("Error deleting brand:", err);
+     
       });
   }
 
@@ -92,11 +92,11 @@ export default function Brands() {
           },
         )
         .then((res) => {
-          console.log(res, "line 93");
+         
           getAllBrands();
         })
         .catch((err) => {
-          console.log(err);
+         
         })
         .finally(() => {
           setIsEdit(false);
@@ -110,11 +110,11 @@ export default function Brands() {
           },
         })
         .then((res) => {
-          console.log(res);
+    
           getAllBrands();
         })
         .catch((err) =>
-          console.error("Error:", err.response?.data || err.message),
+       
         )
         .finally(() => {
           closeModal();

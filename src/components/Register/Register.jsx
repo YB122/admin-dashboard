@@ -35,12 +35,9 @@ export default function Register() {
     axios
       .post("https://nti-ecommerce.vercel.app/api/v1/auth/signUp", data)
       .then((res) => {
-        console.log(res);
         navigate("/login");
       })
-      .catch((err) => {
-        console.error(err);
-      })
+      .catch((err) => {})
       .finally(() => {
         setIsLoading(false);
       });
