@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { User } from "../../contexts/UserContext.jsx";
+import { subCategoriesCascadeDelete } from "../../api/subCategories.delete.jsx";
 
 let schema = z.object({
   name: z.string().min(3, "Minumun character 3").max(30, "max character 30"),
@@ -27,9 +28,7 @@ export default function SubCategories() {
     getAllCategories();
   }, []);
 
-  useEffect(() => {
-    console.log("categoriesData updated:", categoriesData);
-  }, [categoriesData]);
+  subCategoriesCascadeDelete(subCategories);
 
   function getAllCategories() {
     axios
