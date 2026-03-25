@@ -1,49 +1,75 @@
 import React, { useContext, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import { categoriesFetch } from "../../api/categories.Fetch";
+import { customerFetch } from "../../api/customer.Fetch";
 import { User } from "../../contexts/UserContext";
 
-export default function Pagination() {
+export default function Pagination(props) {
   const {
     categoriesAllData,
-    setCategoriesPageData,
-    setCategoriesPage,
     categoriesPage,
-    setCategoriesAllData,
+    subCategoriesAllData,
+    subCategoriesPage,
+    productsAllData,
+    productsPage,
+    brandsAllData,
+    brandsPage,
   } = useContext(User);
-
+  let customerFlag = {
+    setCategoriesAllData: categoriesAllData,
+    setBrandsAllData: brandsAllData,
+    setProductsAllData: productsAllData,
+    setSubCategoriesAllData: subCategoriesAllData,
+  };
+  let customerPage = {
+    setCategoriesAllData: categoriesPage,
+    setBrandsAllData: brandsPage,
+    setProductsAllData: productsPage,
+    setSubCategoriesAllData: subCategoriesPage,
+  };
   useEffect(() => {
-    categoriesFetch(setCategoriesAllData);
-  }, [setCategoriesAllData]);
-
-  console.log(categoriesAllData.length, "line 8");
+    customerFetch(props.setCustomerAllData, props.setCustomerAllDataFlag); // 2 pro
+  }, [props.setCustomerAllData]);
 
   function changePage(numberPage) {
-    categoriesFetch(setCategoriesAllData);
-    setCategoriesPageData(categoriesAllData[numberPage - 1]);
-    setCategoriesPage(numberPage);
+    customerFetch(props.setCustomerAllData, props.setCustomerAllDataFlag);
+    props.setCustomerPageData(
+      customerFlag[props.setCustomerAllDataFlag][numberPage - 1],
+    );
+    props.setCustomerPage(numberPage);
   }
 
   function goBack() {
-    if (categoriesPage != 1) {
-      categoriesFetch(setCategoriesAllData);
-      setCategoriesPageData(categoriesAllData[categoriesPage - 2]);
-      setCategoriesPage(categoriesPage - 1);
+    if (customerPage[props.setCustomerAllDataFlag] != 1) {
+      customerFetch(props.setCustomerAllData, props.setCustomerAllDataFlag);
+      props.setCustomerPageData(
+        customerFlag[props.setCustomerAllDataFlag][
+          customerPage[props.setCustomerAllDataFlag] - 2
+        ],
+      );
+      props.setCustomerPage(customerPage[props.setCustomerAllDataFlag] - 1);
     }
   }
 
   function goNext() {
-    if (categoriesPage != categoriesAllData.length) {
-      categoriesFetch(setCategoriesAllData);
-      setCategoriesPageData(categoriesAllData[categoriesPage]);
-      setCategoriesPage(categoriesPage + 1);
+    if (
+      // customerPage[props.setCustomerAllDataFlag] != categoriesAllData.length
+      customerPage[props.setCustomerAllDataFlag] !=
+      customerFlag[props.setCustomerAllDataFlag].length
+    ) {
+      customerFetch(props.setCustomerAllData, props.setCustomerAllDataFlag);
+      props.setCustomerPageData(
+        customerFlag[props.setCustomerAllDataFlag][
+          customerPage[props.setCustomerAllDataFlag]
+        ],
+      );
+      props.setCustomerPage(customerPage[props.setCustomerAllDataFlag] + 1);
     }
   }
   return (
     <>
       <nav aria-label="Page navigation example">
         <ul className="flex -space-x-px text-sm">
-          {categoriesPage > 1 && (
+          {customerPage[props.setCustomerAllDataFlag] > 1 && (
             <li>
               <NavLink
                 onClick={() => {
@@ -73,9 +99,10 @@ export default function Pagination() {
             </li>
           )}
 
-          {categoriesAllData.map((page, index) => {
+          {customerFlag[props.setCustomerAllDataFlag].map((page, index) => {
             const pageNumber = index + 1;
-            const isActive = pageNumber === categoriesPage;
+            const isActive =
+              pageNumber == customerPage[props.setCustomerAllDataFlag];
             return (
               <li key={index}>
                 <NavLink
@@ -94,7 +121,8 @@ export default function Pagination() {
             );
           })}
 
-          {categoriesPage != categoriesAllData.length && (
+          {customerPage[props.setCustomerAllDataFlag] !=
+            customerFlag[props.setCustomerAllDataFlag].length && (
             <li>
               <NavLink
                 onClick={() => {
