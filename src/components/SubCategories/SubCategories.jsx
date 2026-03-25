@@ -1,10 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
-import styles from "./SubCategories.module.css";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { User } from "../../contexts/UserContext.jsx";
 
 let schema = z.object({
   name: z.string().min(3, "min character 3").max(30, "max character 30"),
@@ -77,7 +75,9 @@ export default function SubCategories() {
       .then((res) => {
         getAllSubCategories();
       })
-      .catch((err) => {});
+      .catch((err) => {
+        console.log(err);
+      });
   }
   function editSubCategories(el) {
     openModal(el);

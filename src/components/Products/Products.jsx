@@ -5,6 +5,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z, { ZodError } from "zod";
 import { User } from "../../contexts/UserContext.jsx";
+import Pagination from "../Pagination/Pagination.jsx";
+import { customerFetch } from "../../api/customer.Fetch.jsx";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
+import { initFlowbite } from "flowbite";
 
 const schema = z.object({
   title: z.string().min(2, "Minimum character 2").max(50, "Max character 50"),
@@ -18,20 +23,84 @@ const schema = z.object({
   images: z.any().optional(),
 });
 
+const arr = [
+  {
+    title: "asd",
+    price: 10,
+    description: "asdasd",
+    stock: "asdasd",
+    category: "asdasdasd",
+    subCategory: "asdasd",
+    brand: "asdasd",
+  },
+  {
+    title: "asd",
+    price: 10,
+    description: "asdasd",
+    stock: "asdasd",
+    category: "asdasdasd",
+    subCategory: "asdasd",
+    brand: "asdasd",
+  },
+  {
+    title: "asd",
+    price: 10,
+    description: "asdasd",
+    stock: "asdasd",
+    category: "asdasdasd",
+    subCategory: "asdasd",
+    brand: "asdasd",
+  },
+];
 export default function Products() {
-  const [productsData, setProductsData] = useState([]);
-  let [currentProduct, setCurrentProduct] = useState({});
+  let {
+    setProductsPageData,
+    productsAllData,
+    productsPageData,
+    productsPage,
+    setProductsAllData,
+    setProductsPage,
+  } = useContext(User);
+  const [currentProduct, setCurrentProduct] = useState({});
   const [isEdit, setIsEdit] = useState(false);
 
   let [categoryData, setCategoryData] = useState([]);
   let [subCategoryData, setSubCategoryData] = useState([]);
   let [brandData, setBrandData] = useState([]);
+
   useEffect(() => {
-    getAllProducts();
+    initFlowbite();
     getAllCategories();
     getAllBrands();
     getAllSubCategories();
   }, []);
+
+  useEffect(() => {
+    customerFetch(setProductsAllData, "setProductsAllData");
+  }, [setProductsAllData]);
+
+  useEffect(() => {
+    if (productsAllData.length > 0 && productsPageData.length === 0) {
+      setProductsPageData(productsAllData[0]);
+    }
+  }, [productsAllData, setProductsPageData, productsPageData.length]);
+
+  // Update page data when productsAllData changes and we have a current page
+  useEffect(() => {
+    if (productsAllData.length > 0 && productsPage > 0) {
+      const currentPageIndex = productsPage - 1;
+      if (
+        currentPageIndex < productsAllData.length &&
+        productsAllData[currentPageIndex]
+      ) {
+        setProductsPageData(productsAllData[currentPageIndex]);
+      } else if (productsAllData.length > 0) {
+        // If current page no longer exists, go to first page
+        setProductsPage(1);
+        setProductsPageData(productsAllData[0]);
+      }
+    }
+  }, [productsAllData, productsPage, setProductsPageData, setProductsPage]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   function getAllCategories() {
@@ -42,9 +111,12 @@ export default function Products() {
         },
       })
       .then((res) => {
+        console.log(res);
         setCategoryData(res.data.categories);
       })
-      .catch((err) => {});
+      .catch((err) => {
+        console.log(err);
+      });
   }
 
   function getAllBrands() {
@@ -57,7 +129,9 @@ export default function Products() {
       .then((res) => {
         setBrandData(res.data.brands);
       })
-      .catch((err) => {});
+      .catch((err) => {
+        console.error("Error fetching brands:", err);
+      });
   }
 
   function getAllSubCategories() {
@@ -68,9 +142,12 @@ export default function Products() {
         },
       })
       .then((res) => {
+        // console.log(res);
         setSubCategoryData(res.data.categories);
       })
-      .catch((err) => {});
+      .catch((err) => {
+        // console.log(err);
+      });
   }
 
   let { register, handleSubmit, formState, setValue } = useForm({
@@ -100,19 +177,8 @@ export default function Products() {
     setIsModalOpen(false);
   }
 
-  function getAllProducts() {
-    axios
-      .get("https://nti-ecommerce.vercel.app/api/v1/products", {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        setProductsData(res.data.Products);
-      })
-      .catch((err) => {});
-  }
   function submitProducts(data) {
+    console.log(data);
     let formData = new FormData();
     formData.append("name", data.name);
     formData.append("title", data.title);
@@ -125,10 +191,39 @@ export default function Products() {
     if (data.imageCover && data.imageCover[0]) {
       formData.append("imageCover", data.imageCover[0]);
     }
-
+    // ✅ CORRECT way to debug FormData
+    console.log("=== FormData Contents ===");
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`${key}:`, {
+          name: value.name,
+          size: value.size,
+          type: value.type,
+        });
+      } else {
+        console.log(`${key}:`, value);
+      }
+    }
     if (data.image && data.image[0]) {
       formData.append("image", data.image[0]);
     }
+    // ✅ CORRECT way to debug FormData
+    console.log("=== FormData Contents ===");
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(`${key}:`, {
+          name: value.name,
+          size: value.size,
+          type: value.type,
+        });
+      } else {
+        console.log(`${key}:`, value);
+      }
+    }
+
+    console.log(formData);
+
+    console.log("======================");
 
     if (isEdit) {
       axios
@@ -140,10 +235,14 @@ export default function Products() {
             },
           },
         )
-        .then((res) => {
-          getAllProducts();
+        .then(() => {
+          customerFetch(setProductsAllData, "setProductsAllData");
+          setProductsPageData(productsAllData[productsPage - 1]);
+          toast.success("Product updated successfully!");
         })
-        .catch((err) => {})
+        .catch((err) => {
+          console.log(err);
+        })
         .finally(() => {
           closeModal();
         });
@@ -154,26 +253,64 @@ export default function Products() {
             token: localStorage.getItem("dbToken"),
           },
         })
-        .then((res) => {
-          getAllProducts();
+        .then(() => {
+          customerFetch(setProductsAllData, "setProductsAllData");
+          setProductsPageData(productsAllData[productsPage - 1]);
+          toast.success("Product added successfully!");
         })
-        .catch((err) => {})
+        .catch((err) =>
+          console.error("Error:", err.response?.data || err.message),
+        )
         .finally(() => {
           closeModal();
         });
     }
   }
   function deleteProduct(id) {
-    axios
-      .delete(`https://nti-ecommerce.vercel.app/api/v1/products/${id}`, {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        getAllProducts();
-      })
-      .catch((err) => {});
+    // Show SweetAlert2 confirmation dialog
+    Swal.fire({
+      title: "Delete Product?",
+      text: "Are you sure you want to delete this product? This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(`https://nti-ecommerce.vercel.app/api/v1/products/${id}`, {
+            headers: {
+              token: localStorage.getItem("dbToken"),
+            },
+          })
+          .then(() => {
+            customerFetch(setProductsAllData, "setProductsAllData");
+            setProductsPageData(productsAllData[productsPage - 1]);
+            toast.success("Product deleted successfully!");
+          })
+          .catch((err) => {
+            // Handle different error types
+            if (!err.response) {
+              // Network error - no internet connection
+              toast.error(
+                "Network error! Please check your internet connection.",
+              );
+            } else if (err.response?.status >= 500) {
+              // Server error (500+)
+              toast.error("Server error! Please try again later.");
+            } else {
+              // Other errors (400, 401, 403, 404, etc.)
+              toast.error(
+                "Error: " +
+                  (err.response?.data?.message || "Something went wrong"),
+              );
+            }
+          });
+      }
+    });
   }
   function editProduct(el) {
     openModal(el);
@@ -235,7 +372,7 @@ export default function Products() {
             </tr>
           </thead>
           <tbody>
-            {productsData?.map((el) => {
+            {productsPageData?.map((el) => {
               return (
                 <tr
                   key={el._id}
@@ -335,6 +472,14 @@ export default function Products() {
             })}
           </tbody>
         </table>
+        <div className="container mx-auto flex justify-center mt-4">
+          <Pagination
+            setCustomerAllData={setProductsAllData}
+            setCustomerAllDataFlag={"setProductsAllData"}
+            setCustomerPageData={setProductsPageData}
+            setCustomerPage={setProductsPage}
+          />
+        </div>
       </div>
 
       {isModalOpen && (
@@ -348,7 +493,7 @@ export default function Products() {
             <div className="relative bg-neutral-primary-soft border border-default rounded-base shadow-sm p-4 md:p-6">
               <div className="flex items-center justify-between border-b border-default pb-4 md:pb-5">
                 <h3 className="text-lg font-medium text-heading">
-                  {isEdit ? "Edit product" : "Add New product"}
+                  {isEdit ? "Edit prodcut" : "Add New product"}
                 </h3>
                 <button
                   type="button"

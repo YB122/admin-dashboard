@@ -21,9 +21,27 @@ export default function UserProvider({ children }) {
       ? localStorage.setItem("userData", JSON.stringify(userData))
       : localStorage.removeItem("userData");
   }, [userData]);
+
+  // Categories
   const [categoriesAllData, setCategoriesAllData] = useState([]);
   const [categoriesPage, setCategoriesPage] = useState(1);
   const [categoriesPageData, setCategoriesPageData] = useState([]);
+
+  // Brands
+  const [brandsAllData, setBrandsAllData] = useState([]);
+  const [brandsPage, setBrandsPage] = useState(1);
+  const [brandsPageData, setBrandsPageData] = useState([]);
+
+  // Products
+  const [productsAllData, setProductsAllData] = useState([]);
+  const [productsPage, setProductsPage] = useState(1);
+  const [productsPageData, setProductsPageData] = useState([]);
+
+  // SubCategories
+  const [subCategoriesAllData, setSubCategoriesAllData] = useState([]);
+  const [subCategoriesPage, setSubCategoriesPage] = useState(1);
+  const [subCategoriesPageData, setSubCategoriesPageData] = useState([]);
+
   return (
     <User.Provider
       value={{
@@ -37,6 +55,24 @@ export default function UserProvider({ children }) {
         setCategoriesAllData,
         categoriesPageData,
         setCategoriesPageData,
+        brandsAllData,
+        setBrandsAllData,
+        brandsPage,
+        setBrandsPage,
+        brandsPageData,
+        setBrandsPageData,
+        productsAllData,
+        setProductsAllData,
+        productsPage,
+        setProductsPage,
+        productsPageData,
+        setProductsPageData,
+        subCategoriesAllData,
+        setSubCategoriesAllData,
+        subCategoriesPage,
+        setSubCategoriesPage,
+        subCategoriesPageData,
+        setSubCategoriesPageData,
       }}
     >
       {children}

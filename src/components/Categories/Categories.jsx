@@ -6,15 +6,19 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 import { User } from "../../contexts/UserContext.jsx";
 import Pagination from "../Pagination/Pagination";
-import { categoriesFetch } from "../../api/categories.Fetch.jsx";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
+import { customerFetch } from "../../api/customer.Fetch.jsx";
+import { initFlowbite } from "flowbite";
 
 let schema = z.object({
-  name: z.string().min(3, "min character 3").max(30, "max character 30"),
+  name: z.string().min(3, "Minumun character 3").max(30, "max character 30"),
   image: z.any().optional(),
 });
 export default function Categories() {
+  useEffect(() => {
+    initFlowbite();
+  }, []);
   let {
     categoriesPageData,
     categoriesAllData,
@@ -25,7 +29,7 @@ export default function Categories() {
   } = useContext(User);
 
   useEffect(() => {
-    categoriesFetch(setCategoriesAllData);
+    customerFetch(setCategoriesAllData, "setCategoriesAllData");
   }, [setCategoriesAllData]);
 
   useEffect(() => {
@@ -59,8 +63,7 @@ export default function Categories() {
   const [isEdit, setIsEdit] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState({});
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState(null);
+
   let { register, handleSubmit, formState, setValue } = useForm({
     defaultValues: {
       name: "",
@@ -102,7 +105,7 @@ export default function Categories() {
           },
         )
         .then((res) => {
-          categoriesFetch(setCategoriesAllData);
+          customerFetch(setCategoriesAllData, "setCategoriesAllData");
           setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
           toast.success("Category updated successfully!");
         })
@@ -136,7 +139,7 @@ export default function Categories() {
           },
         })
         .then((res) => {
-          categoriesFetch(setCategoriesAllData);
+          customerFetch(setCategoriesAllData, "setCategoriesAllData");
           setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
           toast.success("Category added successfully!");
         })
@@ -163,7 +166,7 @@ export default function Categories() {
           setIsEdit(false);
         });
     }
-    categoriesFetch(setCategoriesAllData);
+    customerFetch(setCategoriesAllData, "setCategoriesAllData");
     setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
   }
   function deleteCategory(id) {
@@ -188,7 +191,7 @@ export default function Categories() {
           })
           .then((res) => {
             // Just fetch updated data - useEffect will handle page data updates
-            categoriesFetch(setCategoriesAllData);
+            customerFetch(setCategoriesAllData);
             toast.success("Category deleted successfully!");
           })
           .catch((err) => {
@@ -311,7 +314,12 @@ export default function Categories() {
         </table>
 
         <div className="container mx-auto flex justify-center mt-4">
-          <Pagination />
+          <Pagination
+            setCustomerAllData={setCategoriesAllData}
+            setCustomerAllDataFlag={"setCategoriesAllData"}
+            setCustomerPageData={setCategoriesPageData}
+            setCustomerPage={setCategoriesPage}
+          />
         </div>
       </div>
 
