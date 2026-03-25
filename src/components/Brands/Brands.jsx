@@ -1,30 +1,65 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import z from "zod";
 import { initFlowbite } from "flowbite";
+import { User } from "../../contexts/UserContext";
+import Pagination from "../Pagination/Pagination";
+import { customerFetch } from "../../api/customer.Fetch";
+import toast from "react-hot-toast";
+import Swal from "sweetalert2";
 
 const schema = z.object({
   name: z.string().min(3, "Minimum character 3").max(30, "Max character 30"),
 });
 
 export default function Brands() {
+  let {
+    setBrandsPageData,
+    brandsAllData,
+    brandsPageData,
+    brandsPage,
+    setBrandsAllData,
+    setBrandsPage,
+  } = useContext(User);
   const { register, handleSubmit, formState, setValue, reset } = useForm({
     defaultValues: {
       name: "",
     },
     resolver: zodResolver(schema),
   });
+  useEffect(() => {
+    customerFetch(setBrandsAllData, "setBrandsAllData");
+  }, [setBrandsAllData]);
+  useEffect(() => {
+    if (brandsAllData.length > 0 && brandsPageData.length === 0) {
+      setBrandsPageData(brandsAllData[0]);
+    }
+  }, [brandsAllData, setBrandsPageData, brandsPageData.length]);
+  // Update page data when categoriesAllData changes and we have a current page
+  useEffect(() => {
+    if (brandsAllData.length > 0 && brandsPage > 0) {
+      const currentPageIndex = brandsPage - 1;
+      if (
+        currentPageIndex < brandsAllData.length &&
+        brandsAllData[currentPageIndex]
+      ) {
+        setBrandsPageData(brandsAllData[currentPageIndex]);
+      } else if (brandsAllData.length > 0) {
+        // If current page no longer exists, go to first page
+        setBrandsPage(1);
+        setBrandsPageData(brandsAllData[0]);
+      }
+    }
+  }, [brandsAllData, brandsPage, setBrandsPageData, setBrandsPage]);
 
-  const [brands, setBrands] = useState([]);
   const [isEdit, setIsEdit] = useState(false);
   const [currentBrand, setCurrentBrand] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     initFlowbite();
-    getAllBrands();
   }, []);
 
   function openModal(brand = null) {
@@ -43,35 +78,52 @@ export default function Brands() {
   function closeModal() {
     setIsModalOpen(false);
   }
-  // don't forget change the data
-  function getAllBrands() {
-    axios
-      .get("https://nti-ecommerce.vercel.app/api/v1/brands", {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        setBrands(res.data.brands);
-      })
-      .catch((err) => {
-        console.error("Error fetching brands:", err);
-      });
-  }
 
   function deleteBrand(id) {
-    axios
-      .delete(`https://nti-ecommerce.vercel.app/api/v1/brands/${id}`, {
-        headers: {
-          token: localStorage.getItem("dbToken"),
-        },
-      })
-      .then((res) => {
-        getAllBrands();
-      })
-      .catch((err) => {
-        console.error("Error deleting brand:", err);
-      });
+    // Show SweetAlert2 confirmation dialog
+    Swal.fire({
+      title: "Delete Brand?",
+      text: "Are you sure you want to delete this brand? This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#dc2626",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axios
+          .delete(`https://nti-ecommerce.vercel.app/api/v1/brands/${id}`, {
+            headers: {
+              token: localStorage.getItem("dbToken"),
+            },
+          })
+          .then((res) => {
+            // Just fetch updated data - useEffect will handle page data updates
+            customerFetch(setBrandsAllData, "setBrandsAllData");
+            toast.success("Brand deleted successfully!");
+          })
+          .catch((err) => {
+            // Handle different error types
+            if (!err.response) {
+              // Network error - no internet connection
+              toast.error(
+                "Network error! Please check your internet connection.",
+              );
+            } else if (err.response?.status >= 500) {
+              // Server error (500+)
+              toast.error("Server error! Please try again later.");
+            } else {
+              // Other errors (400, 401, 403, 404, etc.)
+              toast.error(
+                "Error: " +
+                  (err.response?.data?.message || "Something went wrong"),
+              );
+            }
+          });
+      }
+    });
   }
 
   function editBrand(el) {
@@ -92,11 +144,29 @@ export default function Brands() {
           },
         )
         .then((res) => {
-          console.log(res, "line 93");
-          getAllBrands();
+          customerFetch(setBrandsAllData, "setBrandsAllData");
+          setBrandsPageData(brandsAllData[brandsPage - 1]);
+          toast.success("Category updated successfully!");
+          // console.log(res, "line 93");
+          // getAllBrands();
         })
         .catch((err) => {
-          console.log(err);
+          // Handle different error types
+          if (!err.response) {
+            // Network error - no internet connection
+            toast.error(
+              "Network error! Please check your internet connection.",
+            );
+          } else if (err.response?.status >= 500) {
+            // Server error (500+)
+            toast.error("Server error! Please try again later.");
+          } else {
+            // Other errors (400, 401, 403, 404, etc.)
+            toast.error(
+              "Error: " +
+                (err.response?.data?.message || "Something went wrong"),
+            );
+          }
         })
         .finally(() => {
           setIsEdit(false);
@@ -110,17 +180,38 @@ export default function Brands() {
           },
         })
         .then((res) => {
-          console.log(res);
-          getAllBrands();
+          customerFetch(setBrandsAllData, "setBrandsAllData");
+          setBrandsPageData(brandsAllData[brandsPage - 1]);
+
+          toast.success("Category added successfully!");
+          // console.log(res);
+          // getAllBrands();
         })
-        .catch((err) =>
-          console.error("Error:", err.response?.data || err.message),
-        )
+        .catch((err) => {
+          // Handle different error types
+          if (!err.response) {
+            // Network error - no internet connection
+            toast.error(
+              "Network error! Please check your internet connection.",
+            );
+          } else if (err.response?.status >= 500) {
+            // Server error (500+)
+            toast.error("Server error! Please try again later.");
+          } else {
+            // Other errors (400, 401, 403, 404, etc.)
+            toast.error(
+              "Error: " +
+                (err.response?.data?.message || "Something went wrong"),
+            );
+          }
+        })
         .finally(() => {
           closeModal();
           setIsEdit(false);
         });
     }
+    customerFetch(setBrandsAllData, "setBrandsAllData");
+    setBrandsPageData(brandsAllData[brandsPage - 1]);
   }
   return (
     <>
@@ -151,7 +242,7 @@ export default function Brands() {
             </tr>
           </thead>
           <tbody>
-            {brands?.map((brand) => (
+            {brandsPageData?.map((brand) => (
               <tr
                 key={brand._id}
                 className="bg-neutral-primary shadow-sm rounded-xl border border-default-light hover:shadow-md transition-shadow"
@@ -188,6 +279,14 @@ export default function Brands() {
             ))}
           </tbody>
         </table>
+        <div className="container mx-auto flex justify-center mt-4">
+          <Pagination
+            setCustomerAllData={setBrandsAllData}
+            setCustomerAllDataFlag={"setBrandsAllData"}
+            setCustomerPageData={setBrandsPageData}
+            setCustomerPage={setBrandsPage}
+          />
+        </div>
       </div>
 
       {isModalOpen && (

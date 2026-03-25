@@ -6,15 +6,19 @@ import { useForm } from "react-hook-form";
 import z from "zod";
 import { User } from "../../contexts/UserContext.jsx";
 import Pagination from "../Pagination/Pagination";
-import { categoriesFetch } from "../../api/categories.Fetch.jsx";
 import toast from "react-hot-toast";
 import Swal from "sweetalert2";
+import { customerFetch } from "../../api/customer.Fetch.jsx";
+import { initFlowbite } from "flowbite";
 
 let schema = z.object({
   name: z.string().min(3, "Minumun character 3").max(30, "max character 30"),
   image: z.any().optional(),
 });
 export default function Categories() {
+  useEffect(() => {
+    initFlowbite();
+  }, []);
   let {
     categoriesPageData,
     categoriesAllData,
@@ -25,7 +29,7 @@ export default function Categories() {
   } = useContext(User);
 
   useEffect(() => {
-    categoriesFetch(setCategoriesAllData);
+    customerFetch(setCategoriesAllData, "setCategoriesAllData");
   }, [setCategoriesAllData]);
 
   useEffect(() => {
@@ -59,8 +63,7 @@ export default function Categories() {
   const [isEdit, setIsEdit] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentCategory, setCurrentCategory] = useState({});
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [categoryToDelete, setCategoryToDelete] = useState(null);
+
   let { register, handleSubmit, formState, setValue } = useForm({
     defaultValues: {
       name: "",
@@ -83,30 +86,13 @@ export default function Categories() {
   }
 
   function submitCategories(data) {
-    console.log(currentCategory, "line 57");
-
-    console.log(data);
     let formData = new FormData();
     formData.append("name", data.name);
-    console.log(formData, "line 35");
 
     if (data.image && data.image[0]) {
       formData.append("image", data.image[0]);
     }
-    // ✅ CORRECT way to debug FormData
-    console.log("=== FormData Contents ===");
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`${key}:`, {
-          name: value.name,
-          size: value.size,
-          type: value.type,
-        });
-      } else {
-        console.log(`${key}:`, value);
-      }
-    }
-    console.log("======================");
+
     if (isEdit == true) {
       axios
         .put(
@@ -119,14 +105,11 @@ export default function Categories() {
           },
         )
         .then((res) => {
-          console.log(res, "line 93");
-          categoriesFetch(setCategoriesAllData);
+          customerFetch(setCategoriesAllData, "setCategoriesAllData");
           setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
           toast.success("Category updated successfully!");
         })
         .catch((err) => {
-          console.log(err);
-
           // Handle different error types
           if (!err.response) {
             // Network error - no internet connection
@@ -156,14 +139,11 @@ export default function Categories() {
           },
         })
         .then((res) => {
-          console.log(res);
-          categoriesFetch(setCategoriesAllData);
+          customerFetch(setCategoriesAllData, "setCategoriesAllData");
           setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
           toast.success("Category added successfully!");
         })
         .catch((err) => {
-          console.error("Error:", err.response?.data || err.message);
-
           // Handle different error types
           if (!err.response) {
             // Network error - no internet connection
@@ -186,7 +166,7 @@ export default function Categories() {
           setIsEdit(false);
         });
     }
-    categoriesFetch(setCategoriesAllData);
+    customerFetch(setCategoriesAllData, "setCategoriesAllData");
     setCategoriesPageData(categoriesAllData[categoriesPage - 1]);
   }
   function deleteCategory(id) {
@@ -203,7 +183,6 @@ export default function Categories() {
       reverseButtons: true,
     }).then((result) => {
       if (result.isConfirmed) {
-        console.log(id);
         axios
           .delete(`https://nti-ecommerce.vercel.app/api/v1/categories/${id}`, {
             headers: {
@@ -211,17 +190,11 @@ export default function Categories() {
             },
           })
           .then((res) => {
-            console.log(res);
             // Just fetch updated data - useEffect will handle page data updates
-            categoriesFetch(setCategoriesAllData);
+            customerFetch(setCategoriesAllData);
             toast.success("Category deleted successfully!");
           })
           .catch((err) => {
-            console.error("Status:", err.response?.status); // 401 = Unauthorized, 404 = Not Found
-            console.error(
-              "Message:",
-              err.response?.data?.message || err.message,
-            );
             // Handle different error types
             if (!err.response) {
               // Network error - no internet connection
@@ -240,7 +213,6 @@ export default function Categories() {
             }
           });
       } else {
-        console.log("Category deletion cancelled by user");
       }
     });
   }
@@ -342,7 +314,12 @@ export default function Categories() {
         </table>
 
         <div className="container mx-auto flex justify-center mt-4">
-          <Pagination />
+          <Pagination
+            setCustomerAllData={setCategoriesAllData}
+            setCustomerAllDataFlag={"setCategoriesAllData"}
+            setCustomerPageData={setCategoriesPageData}
+            setCustomerPage={setCategoriesPage}
+          />
         </div>
       </div>
 
